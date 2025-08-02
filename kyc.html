@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KYC Verification - CryptoBroker Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .kyc-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .kyc-card {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .kyc-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .kyc-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .kyc-subtitle {
+      color: var(--gray);
+      font-size: 1rem;
+    }
+
+    .verification-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      border-radius: 8px;
+      background: var(--darker);
+    }
+
+    .status-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .status-icon.pending {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    .status-icon.verified {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+
+    .status-icon.rejected {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+
+    .tier-system {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .tier-card {
+      background: var(--darker);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .tier-card.current {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .tier-card.locked {
+      opacity: 0.6;
+    }
+
+    .tier-badge {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .tier-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .tier-limits {
+      color: var(--gray);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .tier-features {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .tier-features li {
+      padding: 0.25rem 0;
+      font-size: 0.875rem;
+      color: var(--light);
+    }
+
+    .tier-features li:before {
+      content: "✓";
+      color: var(--success);
+      margin-right: 0.5rem;
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    .form-section h3 {
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--light);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--darker);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--light);
+      font-size: 0.875rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .file-upload {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .file-upload:hover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .file-upload.dragover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+
+    .upload-text {
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+
+    .upload-hint {
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    .document-preview {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--darker);
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .document-icon {
+      width: 50px;
+      height: 50px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .document-info {
+      flex: 1;
+    }
+
+    .document-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .document-size {
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    .document-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--gray);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: color 0.3s ease;
+    }
+
+    .action-btn:hover {
+      color: var(--danger);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .submit-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .submit-btn:disabled {
+      background: var(--gray);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--darker);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      text-align: center;
+      color: var(--gray);
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .tier-system {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="user-info">
+          <h3>Username</h3>
+          <p>Administrator</p>
+        </div>
+      </div>
+
+      <div class="sidebar-search">
+        <input type="text" placeholder="Search...">
+      </div>
+
+      <nav class="nav-menu">
+        <div class="nav-item">
+          <a href="index.html" class="nav-link">
+            <i class="fas fa-home"></i>
+            Home
+          </a>
+        </div>
+
+        <div class="nav-item">
+          <a href="trading.html" class="nav-link">
+            <i class="fas fa-chart-line"></i>
+            Trading
+          </a>
+        </div>
+
+        <div class="nav-item">
+          <a href="wallet.html" class="nav-link">
+            <i class="fas fa-wallet"></i>
+            Wallet
+          </a>
+        </div>
+
+        <div class="nav-item">
+          <a href="kyc.html" class="nav-link active">
+            <i class="fas fa-id-card"></i>
+            KYC Verification
+          </a>
+        </div>
+
+        <div class="nav-item">
+          <a href="#" class="nav-link dropdown-toggle" onclick="toggleDropdown('portfolio')">
+            <i class="fas fa-briefcase"></i>
+            Portfolio
+            <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+          </a>
+          <div class="nav-dropdown" id="portfolio-dropdown">
+            <a href="#" class="nav-link">Holdings</a>
+            <a href="#" class="nav-link">Performance</a>
+            <a href="#" class="nav-link">History</a>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <a href="#" class="nav-link dropdown-toggle" onclick="toggleDropdown('settings')">
+            <i class="fas fa-cog"></i>
+            Settings
+            <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+          </a>
+          <div class="nav-dropdown" id="settings-dropdown">
+            <a href="#" class="nav-link">General</a>
+            <a href="#" class="nav-link">Security</a>
+            <a href="#" class="nav-link">API Keys</a>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="logo">CryptoBroker Pro</div>
+        </div>
+
+        <div class="header-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search...">
+        </div>
+
+        <div class="header-actions">
+          <div class="header-icon">
+            <i class="fas fa-bell"></i>
+          </div>
+          <div class="header-icon">
+            <i class="fas fa-user"></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- KYC Content -->
+      <div class="kyc-container">
+        <div class="kyc-card">
+          <div class="kyc-header">
+            <h1 class="kyc-title">KYC Verification</h1>
+            <p class="kyc-subtitle">Complete your verification to unlock higher trading limits</p>
+          </div>
+
+          <div class="verification-status">
+            <div class="status-icon pending">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div>
+              <h3>Verification Status: Pending</h3>
+              <p>Your account is currently at Tier 1. Complete KYC to upgrade to Tier 3.</p>
+            </div>
+          </div>
+
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 25%;"></div>
+          </div>
+          <div class="progress-text">25% Complete</div>
+        </div>
+
+        <!-- Tier System -->
+        <div class="kyc-card">
+          <h2 style="margin-bottom: 1.5rem;">Account Tiers</h2>
+          <div class="tier-system">
+            <div class="tier-card current">
+              <div class="tier-badge">Current</div>
+              <div class="tier-name">Tier 1</div>
+              <div class="tier-limits">Daily Limit: $1,000 | Monthly: $10,000</div>
+              <ul class="tier-features">
+                <li>Basic trading</li>
+                <li>Limited withdrawals</li>
+                <li>Email support</li>
+              </ul>
+            </div>
+
+            <div class="tier-card locked">
+              <div class="tier-badge">Locked</div>
+              <div class="tier-name">Tier 2</div>
+              <div class="tier-limits">Daily Limit: $5,000 | Monthly: $50,000</div>
+              <ul class="tier-features">
+                <li>Enhanced trading</li>
+                <li>Higher limits</li>
+                <li>Priority support</li>
+              </ul>
+            </div>
+
+            <div class="tier-card locked">
+              <div class="tier-badge">Locked</div>
+              <div class="tier-name">Tier 3</div>
+              <div class="tier-limits">Daily Limit: $25,000 | Monthly: $250,000</div>
+              <ul class="tier-features">
+                <li>Full trading access</li>
+                <li>Unlimited withdrawals</li>
+                <li>24/7 support</li>
+                <li>Advanced features</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- KYC Form -->
+        <div class="kyc-card">
+          <h2 style="margin-bottom: 1.5rem;">Personal Information</h2>
+          <form id="kycForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>First Name *</label>
+                <input type="text" required>
+              </div>
+              <div class="form-group">
+                <label>Last Name *</label>
+                <input type="text" required>
+              </div>
+              <div class="form-group">
+                <label>Date of Birth *</label>
+                <input type="date" required>
+              </div>
+              <div class="form-group">
+                <label>Nationality *</label>
+                <select required>
+                  <option value="">Select Country</option>
+                  <option value="US">United States</option>
+                  <option value="UK">United Kingdom</option>
+                  <option value="CA">Canada</option>
+                  <option value="AU">Australia</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                  <option value="JP">Japan</option>
+                  <option value="SG">Singapore</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" required>
+              </div>
+              <div class="form-group">
+                <label>Email Address *</label>
+                <input type="email" required>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>Address Information</h3>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>Street Address *</label>
+                  <input type="text" required>
+                </div>
+                <div class="form-group">
+                  <label>City *</label>
+                  <input type="text" required>
+                </div>
+                <div class="form-group">
+                  <label>State/Province *</label>
+                  <input type="text" required>
+                </div>
+                <div class="form-group">
+                  <label>Postal Code *</label>
+                  <input type="text" required>
+                </div>
+                <div class="form-group">
+                  <label>Country *</label>
+                  <select required>
+                    <option value="">Select Country</option>
+                    <option value="US">United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="JP">Japan</option>
+                    <option value="SG">Singapore</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>Identity Documents</h3>
+              <div class="form-group">
+                <label>Document Type *</label>
+                <select required>
+                  <option value="">Select Document Type</option>
+                  <option value="passport">Passport</option>
+                  <option value="drivers_license">Driver's License</option>
+                  <option value="national_id">National ID Card</option>
+                </select>
+              </div>
+
+              <div class="file-upload" onclick="document.getElementById('idDocument').click()">
+                <div class="upload-icon">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text">Click to upload or drag and drop</div>
+                <div class="upload-hint">PNG, JPG, PDF up to 10MB</div>
+                <input type="file" id="idDocument" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+              </div>
+
+              <div class="form-group">
+                <label>Proof of Address *</label>
+                <select required>
+                  <option value="">Select Document Type</option>
+                  <option value="utility_bill">Utility Bill</option>
+                  <option value="bank_statement">Bank Statement</option>
+                  <option value="lease_agreement">Lease Agreement</option>
+                  <option value="government_letter">Government Letter</option>
+                </select>
+              </div>
+
+              <div class="file-upload" onclick="document.getElementById('addressDocument').click()">
+                <div class="upload-icon">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text">Click to upload or drag and drop</div>
+                <div class="upload-hint">PNG, JPG, PDF up to 10MB</div>
+                <input type="file" id="addressDocument" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>Additional Information</h3>
+              <div class="form-group">
+                <label>Source of Funds *</label>
+                <select required>
+                  <option value="">Select Source</option>
+                  <option value="employment">Employment Income</option>
+                  <option value="business">Business Income</option>
+                  <option value="investment">Investment Returns</option>
+                  <option value="inheritance">Inheritance</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Annual Income Range *</label>
+                <select required>
+                  <option value="">Select Range</option>
+                  <option value="under_25k">Under $25,000</option>
+                  <option value="25k_50k">$25,000 - $50,000</option>
+                  <option value="50k_100k">$50,000 - $100,000</option>
+                  <option value="100k_250k">$100,000 - $250,000</option>
+                  <option value="over_250k">Over $250,000</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Investment Experience *</label>
+                <select required>
+                  <option value="">Select Experience</option>
+                  <option value="beginner">Beginner (0-1 years)</option>
+                  <option value="intermediate">Intermediate (1-3 years)</option>
+                  <option value="advanced">Advanced (3-5 years)</option>
+                  <option value="expert">Expert (5+ years)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>
+                <input type="checkbox" required>
+                I agree to the terms and conditions and privacy policy
+              </label>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitKyc">
+              <i class="fas fa-paper-plane"></i> Submit KYC Application
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let uploadedFiles = [];
+
+    // File upload handling
+    function handleFileUpload(input, type) {
+      const file = input.files[0];
+      if (file) {
+        const fileInfo = {
+          name: file.name,
+          size: (file.size / 1024 / 1024).toFixed(2),
+          type: type,
+          file: file
+        };
+        
+        uploadedFiles.push(fileInfo);
+        displayFilePreview(fileInfo);
+        
+        // Update progress
+        updateProgress();
+      }
+    }
+
+    // Display file preview
+    function displayFilePreview(fileInfo) {
+      const container = document.querySelector('.file-upload').parentNode;
+      const preview = document.createElement('div');
+      preview.className = 'document-preview';
+      preview.innerHTML = `
+        <div class="document-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="document-info">
+          <div class="document-name">${fileInfo.name}</div>
+          <div class="document-size">${fileInfo.size} MB</div>
+        </div>
+        <div class="document-actions">
+          <button class="action-btn" onclick="removeFile('${fileInfo.name}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `;
+      
+      container.appendChild(preview);
+    }
+
+    // Remove file
+    function removeFile(fileName) {
+      uploadedFiles = uploadedFiles.filter(file => file.name !== fileName);
+      updateProgress();
+      
+      // Remove preview
+      const previews = document.querySelectorAll('.document-preview');
+      previews.forEach(preview => {
+        if (preview.querySelector('.document-name').textContent === fileName) {
+          preview.remove();
+        }
+      });
+    }
+
+    // Update progress
+    function updateProgress() {
+      const progress = (uploadedFiles.length / 2) * 100; // 2 required documents
+      document.querySelector('.progress-fill').style.width = Math.min(progress, 100) + '%';
+      document.querySelector('.progress-text').textContent = Math.min(progress, 100) + '% Complete';
+    }
+
+    // Form submission
+    document.getElementById('kycForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitKyc');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      
+      // Simulate KYC processing
+      setTimeout(() => {
+        alert('KYC application submitted successfully! Your application is under review.');
+        
+        // Update status
+        const statusIcon = document.querySelector('.status-icon');
+        statusIcon.className = 'status-icon pending';
+        statusIcon.innerHTML = '<i class="fas fa-clock"></i>';
+        
+        const statusText = document.querySelector('.verification-status h3');
+        statusText.textContent = 'Verification Status: Under Review';
+        
+        // Reset form
+        document.getElementById('kycForm').reset();
+        uploadedFiles = [];
+        updateProgress();
+        
+        // Remove file previews
+        document.querySelectorAll('.document-preview').forEach(preview => preview.remove());
+        
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit KYC Application';
+      }, 3000);
+    });
+
+    // File upload event listeners
+    document.getElementById('idDocument').addEventListener('change', function() {
+      handleFileUpload(this, 'id');
+    });
+
+    document.getElementById('addressDocument').addEventListener('change', function() {
+      handleFileUpload(this, 'address');
+    });
+
+    // Drag and drop functionality
+    document.querySelectorAll('.file-upload').forEach(upload => {
+      upload.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+      });
+      
+      upload.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+      });
+      
+      upload.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          const input = this.querySelector('input[type="file"]');
+          input.files = files;
+          handleFileUpload(input, input.id === 'idDocument' ? 'id' : 'address');
+        }
+      });
+    });
+
+    // Toggle sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('show');
+    }
+
+    // Toggle dropdown menus
+    function toggleDropdown(id) {
+      const dropdown = document.getElementById(id + '-dropdown');
+      const toggle = event.currentTarget;
+      const icon = toggle.querySelector('.fa-chevron-down, .fa-chevron-up');
+      
+      dropdown.classList.toggle('show');
+      
+      if (dropdown.classList.contains('show')) {
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+      } else {
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('KYC page loaded');
+    });
+  </script>
+</body>
+</html> 

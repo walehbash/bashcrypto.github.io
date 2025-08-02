@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading - CryptoBroker Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .trading-container {
+      display: grid;
+      grid-template-columns: 300px 1fr 350px;
+      gap: 1rem;
+      height: calc(100vh - 100px);
+    }
+
+    .market-list {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .market-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 0.5rem;
+    }
+
+    .market-item:hover {
+      background: var(--darker);
+    }
+
+    .market-item.active {
+      background: var(--primary);
+    }
+
+    .market-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .market-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .market-name {
+      font-weight: 500;
+    }
+
+    .market-price {
+      text-align: right;
+    }
+
+    .price-value {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .price-change {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    .price-change.positive {
+      color: var(--success);
+    }
+
+    .price-change.negative {
+      color: var(--danger);
+    }
+
+    .chart-area {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+    }
+
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .chart-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .chart-controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .timeframe-btn {
+      background: var(--darker);
+      border: 1px solid var(--border);
+      color: var(--light);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .timeframe-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .chart-container {
+      flex: 1;
+      position: relative;
+      height: 400px;
+    }
+
+    .trading-panel {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .order-form {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--darker);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--light);
+      font-size: 0.875rem;
+    }
+
+    .order-type-tabs {
+      display: flex;
+      background: var(--darker);
+      border-radius: 6px;
+      padding: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .order-type-tab {
+      flex: 1;
+      padding: 0.5rem;
+      text-align: center;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .order-type-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .order-btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 0.5rem;
+    }
+
+    .order-btn.buy {
+      background: var(--success);
+      color: white;
+    }
+
+    .order-btn.sell {
+      background: var(--danger);
+      color: white;
+    }
+
+    .order-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .order-history {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+
+    .history-type {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .history-type.buy {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+
+    .history-type.sell {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+
+    .price-feed {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .feed-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .feed-item:last-child {
+      border-bottom: none;
+    }
+
+    .feed-label {
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    .feed-value {
+      font-weight: 600;
+    }
+
+    @media (max-width: 1200px) {
+      .trading-container {
+        grid-template-columns: 250px 1fr 300px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .trading-container {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="user-info">
+          <h3>Username</h3>
+          <p>Administrator</p>
+        </div>
+      </div>
+
+      <div class="sidebar-search">
+        <input type="text" placeholder="Search...">
+      </div>
+
+      <nav class="nav-menu">
+        <div class="nav-item">
+          <a href="index.html" class="nav-link">
+            <i class="fas fa-home"></i>
+            Home
+          </a>
+        </div>
+
+        <div class="nav-item">
+          <a href="trading.html" class="nav-link active">
+            <i class="fas fa-chart-line"></i>
+            Trading
+          </a>
+        </div>
+
+        <div class="nav-item">
+          <a href="#" class="nav-link dropdown-toggle" onclick="toggleDropdown('portfolio')">
+            <i class="fas fa-briefcase"></i>
+            Portfolio
+            <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+          </a>
+          <div class="nav-dropdown" id="portfolio-dropdown">
+            <a href="#" class="nav-link">Holdings</a>
+            <a href="#" class="nav-link">Performance</a>
+            <a href="#" class="nav-link">History</a>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <a href="#" class="nav-link dropdown-toggle" onclick="toggleDropdown('wallet')">
+            <i class="fas fa-wallet"></i>
+            Wallet
+            <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+          </a>
+          <div class="nav-dropdown" id="wallet-dropdown">
+            <a href="#" class="nav-link">Deposit</a>
+            <a href="#" class="nav-link">Withdraw</a>
+            <a href="#" class="nav-link">Transactions</a>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <a href="#" class="nav-link dropdown-toggle" onclick="toggleDropdown('settings')">
+            <i class="fas fa-cog"></i>
+            Settings
+            <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+          </a>
+          <div class="nav-dropdown" id="settings-dropdown">
+            <a href="#" class="nav-link">General</a>
+            <a href="#" class="nav-link">Security</a>
+            <a href="#" class="nav-link">API Keys</a>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="logo">CryptoBroker Pro</div>
+        </div>
+
+        <div class="header-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search markets...">
+        </div>
+
+        <div class="header-actions">
+          <div class="header-icon">
+            <i class="fas fa-bell"></i>
+          </div>
+          <div class="header-icon">
+            <i class="fas fa-user"></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- Trading Interface -->
+      <div class="trading-container">
+        <!-- Market List -->
+        <div class="market-list">
+          <h3 style="margin-bottom: 1rem;">Markets</h3>
+          <div class="market-item active" onclick="selectMarket('BTC/USD')">
+            <div class="market-info">
+              <div class="market-icon" style="background: #f7931a;">₿</div>
+              <div>
+                <div class="market-name">BTC/USD</div>
+                <div class="market-price">
+                  <div class="price-value">$43,250.00</div>
+                  <div class="price-change positive">+2.45%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="market-item" onclick="selectMarket('ETH/USD')">
+            <div class="market-info">
+              <div class="market-icon" style="background: #627eea;">Ξ</div>
+              <div>
+                <div class="market-name">ETH/USD</div>
+                <div class="market-price">
+                  <div class="price-value">$2,850.00</div>
+                  <div class="price-change positive">+1.23%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="market-item" onclick="selectMarket('SOL/USD')">
+            <div class="market-info">
+              <div class="market-icon" style="background: #9945ff;">◎</div>
+              <div>
+                <div class="market-name">SOL/USD</div>
+                <div class="market-price">
+                  <div class="price-value">$98.50</div>
+                  <div class="price-change negative">-0.87%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="market-item" onclick="selectMarket('ADA/USD')">
+            <div class="market-info">
+              <div class="market-icon" style="background: #0033ad;">₳</div>
+              <div>
+                <div class="market-name">ADA/USD</div>
+                <div class="market-price">
+                  <div class="price-value">$0.485</div>
+                  <div class="price-change positive">+0.56%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="market-item" onclick="selectMarket('DOT/USD')">
+            <div class="market-info">
+              <div class="market-icon" style="background: #e6007a;">●</div>
+              <div>
+                <div class="market-name">DOT/USD</div>
+                <div class="market-price">
+                  <div class="price-value">$7.25</div>
+                  <div class="price-change positive">+1.12%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart Area -->
+        <div class="chart-area">
+          <div class="chart-header">
+            <div class="chart-title">BTC/USD</div>
+            <div class="chart-controls">
+              <button class="timeframe-btn active" onclick="setTimeframe('1h')">1H</button>
+              <button class="timeframe-btn" onclick="setTimeframe('4h')">4H</button>
+              <button class="timeframe-btn" onclick="setTimeframe('1d')">1D</button>
+              <button class="timeframe-btn" onclick="setTimeframe('1w')">1W</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="tradingChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Trading Panel -->
+        <div class="trading-panel">
+          <div class="order-form">
+            <h3 style="margin-bottom: 1rem;">Place Order</h3>
+            
+            <div class="order-type-tabs">
+              <div class="order-type-tab active" onclick="setOrderType('market')">Market</div>
+              <div class="order-type-tab" onclick="setOrderType('limit')">Limit</div>
+              <div class="order-type-tab" onclick="setOrderType('stop')">Stop</div>
+            </div>
+
+            <div class="form-group">
+              <label>Price</label>
+              <input type="number" id="orderPrice" value="43250.00" step="0.01">
+            </div>
+
+            <div class="form-group">
+              <label>Amount</label>
+              <input type="number" id="orderAmount" placeholder="0.00" step="0.001">
+            </div>
+
+            <div class="form-group">
+              <label>Total</label>
+              <input type="number" id="orderTotal" readonly>
+            </div>
+
+            <button class="order-btn buy" onclick="placeOrder('buy')">
+              <i class="fas fa-arrow-up"></i> Buy BTC
+            </button>
+            <button class="order-btn sell" onclick="placeOrder('sell')">
+              <i class="fas fa-arrow-down"></i> Sell BTC
+            </button>
+          </div>
+
+          <div class="price-feed">
+            <h4 style="margin-bottom: 1rem;">Price Feed</h4>
+            <div class="feed-item">
+              <span class="feed-label">Last Price</span>
+              <span class="feed-value">$43,250.00</span>
+            </div>
+            <div class="feed-item">
+              <span class="feed-label">24h High</span>
+              <span class="feed-value">$44,120.00</span>
+            </div>
+            <div class="feed-item">
+              <span class="feed-label">24h Low</span>
+              <span class="feed-value">$42,800.00</span>
+            </div>
+            <div class="feed-item">
+              <span class="feed-label">24h Volume</span>
+              <span class="feed-value">$2.5B</span>
+            </div>
+            <div class="feed-item">
+              <span class="feed-label">Market Cap</span>
+              <span class="feed-value">$850B</span>
+            </div>
+          </div>
+
+          <div class="order-history">
+            <h4 style="margin-bottom: 1rem;">Order History</h4>
+            <div class="history-item">
+              <div>
+                <div class="history-type buy">BUY</div>
+                <div style="font-size: 0.75rem; color: var(--gray);">BTC/USD</div>
+              </div>
+              <div style="text-align: right;">
+                <div>0.001 BTC</div>
+                <div style="font-size: 0.75rem; color: var(--gray);">$43.25</div>
+              </div>
+            </div>
+            <div class="history-item">
+              <div>
+                <div class="history-type sell">SELL</div>
+                <div style="font-size: 0.75rem; color: var(--gray);">ETH/USD</div>
+              </div>
+              <div style="text-align: right;">
+                <div>0.5 ETH</div>
+                <div style="font-size: 0.75rem; color: var(--gray);">$1,425.00</div>
+              </div>
+            </div>
+            <div class="history-item">
+              <div>
+                <div class="history-type buy">BUY</div>
+                <div style="font-size: 0.75rem; color: var(--gray);">SOL/USD</div>
+              </div>
+              <div style="text-align: right;">
+                <div>10 SOL</div>
+                <div style="font-size: 0.75rem; color: var(--gray);">$985.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let tradingChart;
+    let currentMarket = 'BTC/USD';
+    let currentTimeframe = '1h';
+
+    // Initialize trading chart
+    function initTradingChart() {
+      const ctx = document.getElementById('tradingChart').getContext('2d');
+      tradingChart = new Chart(ctx, {
+        type: 'candlestick',
+        data: {
+          datasets: [{
+            label: 'BTC/USD',
+            data: generateCandlestickData(),
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: 'rgba(51, 65, 85, 0.3)'
+              },
+              ticks: {
+                color: '#f8fafc'
+              }
+            },
+            y: {
+              grid: {
+                color: 'rgba(51, 65, 85, 0.3)'
+              },
+              ticks: {
+                color: '#f8fafc'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Generate sample candlestick data
+    function generateCandlestickData() {
+      const data = [];
+      let price = 43250;
+      
+      for (let i = 0; i < 100; i++) {
+        const open = price + (Math.random() - 0.5) * 200;
+        const high = open + Math.random() * 100;
+        const low = open - Math.random() * 100;
+        const close = open + (Math.random() - 0.5) * 150;
+        
+        data.push({
+          x: new Date(Date.now() - (100 - i) * 60000),
+          o: open,
+          h: high,
+          l: low,
+          c: close
+        });
+        
+        price = close;
+      }
+      
+      return data;
+    }
+
+    // Select market
+    function selectMarket(market) {
+      currentMarket = market;
+      
+      // Update active market
+      document.querySelectorAll('.market-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+      
+      // Update chart title
+      document.querySelector('.chart-title').textContent = market;
+      
+      // Update price feed
+      updatePriceFeed(market);
+      
+      console.log('Selected market:', market);
+    }
+
+    // Set timeframe
+    function setTimeframe(timeframe) {
+      currentTimeframe = timeframe;
+      
+      // Update active timeframe
+      document.querySelectorAll('.timeframe-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // Update chart data
+      updateChartData();
+      
+      console.log('Set timeframe:', timeframe);
+    }
+
+    // Set order type
+    function setOrderType(type) {
+      // Update active order type
+      document.querySelectorAll('.order-type-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      console.log('Set order type:', type);
+    }
+
+    // Place order
+    function placeOrder(type) {
+      const price = document.getElementById('orderPrice').value;
+      const amount = document.getElementById('orderAmount').value;
+      const total = document.getElementById('orderTotal').value;
+      
+      if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+      }
+      
+      // Simulate order placement
+      const order = {
+        type: type,
+        market: currentMarket,
+        price: parseFloat(price),
+        amount: parseFloat(amount),
+        total: parseFloat(total),
+        timestamp: new Date()
+      };
+      
+      console.log('Order placed:', order);
+      
+      // Add to order history
+      addOrderToHistory(order);
+      
+      // Reset form
+      document.getElementById('orderAmount').value = '';
+      document.getElementById('orderTotal').value = '';
+      
+      alert(`${type.toUpperCase()} order placed successfully!`);
+    }
+
+    // Add order to history
+    function addOrderToHistory(order) {
+      const historyContainer = document.querySelector('.order-history');
+      const historyItem = document.createElement('div');
+      historyItem.className = 'history-item';
+      
+      historyItem.innerHTML = `
+        <div>
+          <div class="history-type ${order.type}">${order.type.toUpperCase()}</div>
+          <div style="font-size: 0.75rem; color: var(--gray);">${order.market}</div>
+        </div>
+        <div style="text-align: right;">
+          <div>${order.amount} ${order.market.split('/')[0]}</div>
+          <div style="font-size: 0.75rem; color: var(--gray);">$${order.total.toFixed(2)}</div>
+        </div>
+      `;
+      
+      historyContainer.insertBefore(historyItem, historyContainer.firstChild);
+    }
+
+    // Update price feed
+    function updatePriceFeed(market) {
+      const prices = {
+        'BTC/USD': { last: 43250, high: 44120, low: 42800, volume: '2.5B', cap: '850B' },
+        'ETH/USD': { last: 2850, high: 2920, low: 2800, volume: '1.8B', cap: '340B' },
+        'SOL/USD': { last: 98.50, high: 102.30, low: 95.20, volume: '450M', cap: '42B' },
+        'ADA/USD': { last: 0.485, high: 0.492, low: 0.478, volume: '120M', cap: '17B' },
+        'DOT/USD': { last: 7.25, high: 7.45, low: 7.10, volume: '85M', cap: '8.5B' }
+      };
+      
+      const price = prices[market];
+      if (price) {
+        document.querySelector('.feed-item:nth-child(1) .feed-value').textContent = `$${price.last.toLocaleString()}`;
+        document.querySelector('.feed-item:nth-child(2) .feed-value').textContent = `$${price.high.toLocaleString()}`;
+        document.querySelector('.feed-item:nth-child(3) .feed-value').textContent = `$${price.low.toLocaleString()}`;
+        document.querySelector('.feed-item:nth-child(4) .feed-value').textContent = `$${price.volume}`;
+        document.querySelector('.feed-item:nth-child(5) .feed-value').textContent = `$${price.cap}`;
+      }
+    }
+
+    // Update chart data
+    function updateChartData() {
+      if (tradingChart) {
+        tradingChart.data.datasets[0].data = generateCandlestickData();
+        tradingChart.update();
+      }
+    }
+
+    // Calculate order total
+    function calculateTotal() {
+      const price = parseFloat(document.getElementById('orderPrice').value) || 0;
+      const amount = parseFloat(document.getElementById('orderAmount').value) || 0;
+      const total = price * amount;
+      document.getElementById('orderTotal').value = total.toFixed(2);
+    }
+
+    // Toggle sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('show');
+    }
+
+    // Toggle dropdown menus
+    function toggleDropdown(id) {
+      const dropdown = document.getElementById(id + '-dropdown');
+      const toggle = event.currentTarget;
+      const icon = toggle.querySelector('.fa-chevron-down, .fa-chevron-up');
+      
+      dropdown.classList.toggle('show');
+      
+      if (dropdown.classList.contains('show')) {
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+      } else {
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      initTradingChart();
+      
+      // Add event listeners
+      document.getElementById('orderAmount').addEventListener('input', calculateTotal);
+      document.getElementById('orderPrice').addEventListener('input', calculateTotal);
+      
+      // Simulate real-time price updates
+      setInterval(() => {
+        const marketItems = document.querySelectorAll('.market-item');
+        marketItems.forEach(item => {
+          const priceElement = item.querySelector('.price-value');
+          const changeElement = item.querySelector('.price-change');
+          
+          if (priceElement && changeElement) {
+            const currentPrice = parseFloat(priceElement.textContent.replace(/[^0-9.]/g, ''));
+            const change = (Math.random() - 0.5) * 0.02; // ±1% change
+            const newPrice = currentPrice * (1 + change);
+            
+            priceElement.textContent = '$' + newPrice.toFixed(2);
+            changeElement.textContent = (change * 100).toFixed(2) + '%';
+            changeElement.className = 'price-change ' + (change > 0 ? 'positive' : 'negative');
+          }
+        });
+      }, 3000);
+    });
+  </script>
+</body>
+</html> 
