@@ -198,72 +198,6 @@
     .login-footer a:hover {
       text-decoration: underline;
     }
-
-    .otp-container {
-      display: none;
-    }
-
-    .otp-container.show {
-      display: block;
-    }
-
-    .otp-inputs {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .otp-input {
-      width: 50px;
-      height: 50px;
-      text-align: center;
-      font-size: 1.25rem;
-      font-weight: 600;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--darker);
-      color: var(--light);
-    }
-
-    .otp-input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-
-    .resend-otp {
-      text-align: center;
-      margin-top: 1rem;
-    }
-
-    .resend-otp button {
-      background: none;
-      border: none;
-      color: var(--primary);
-      cursor: pointer;
-      font-size: 0.875rem;
-    }
-
-    .resend-otp button:disabled {
-      color: var(--gray);
-      cursor: not-allowed;
-    }
-
-    .timer {
-      color: var(--gray);
-      font-size: 0.875rem;
-    }
-
-    @media (max-width: 480px) {
-      .login-card {
-        padding: 2rem;
-      }
-      
-      .social-login {
-        flex-direction: column;
-      }
-    }
   </style>
 </head>
 <body>
@@ -280,16 +214,16 @@
             </svg>
           </div>
         </div>
-        <h1 class="login-title">CryptoBroker</h1>
-        <p class="login-subtitle">Sign in to your account</p>
+        <h1 class="login-title" id="formTitle">Sign In</h1>
+        <p class="login-subtitle" id="formSubtitle">Sign in to your account</p>
       </div>
 
       <!-- Login Form -->
       <form id="loginForm" class="login-form">
         <div class="form-group">
-          <label for="email">Email or Phone Number</label>
+          <label for="email">Email</label>
           <div class="input-group">
-            <input type="text" id="email" placeholder="Enter your email or phone" required>
+            <input type="email" id="email" placeholder="Enter your email" required>
             <i class="fas fa-envelope input-icon"></i>
           </div>
         </div>
@@ -318,49 +252,20 @@
         </div>
       </form>
 
-      <!-- OTP Form -->
-      <form id="otpForm" class="otp-container">
-        <div class="login-header">
-          <h2 class="login-title">Verify OTP</h2>
-          <p class="login-subtitle">Enter the 6-digit code sent to your device</p>
-        </div>
-
-        <div class="otp-inputs">
-          <input type="text" class="otp-input" maxlength="1" data-index="0">
-          <input type="text" class="otp-input" maxlength="1" data-index="1">
-          <input type="text" class="otp-input" maxlength="1" data-index="2">
-          <input type="text" class="otp-input" maxlength="1" data-index="3">
-          <input type="text" class="otp-input" maxlength="1" data-index="4">
-          <input type="text" class="otp-input" maxlength="1" data-index="5">
-        </div>
-
-        <button type="submit" class="login-btn" id="verifyOtpBtn">
-          <i class="fas fa-check"></i> Verify OTP
-        </button>
-
-        <div class="resend-otp">
-          <button type="button" id="resendBtn" onclick="resendOTP()">
-            Resend Code
-          </button>
-          <span class="timer" id="timer"></span>
-        </div>
-      </form>
-
       <div class="login-footer">
-        <p>Don't have an account? <a href="#" onclick="showSignup()">Sign up</a></p>
+        <p id="footerText">Don't have an account? <a href="#" onclick="showSignup()">Sign up</a></p>
         <p><a href="#" onclick="forgotPassword()">Forgot password?</a></p>
       </div>
     </div>
   </div>
 
   <script>
-    let otpTimer;
-    let otpCode = '';
+    const auth = firebase.auth();
 
     // Toggle password visibility
     function togglePassword() {
       const passwordInput = document.getElementById('password');
-      const icon = document.querySelector('.input-icon');
+      const icon = document.querySelector('.fa-eye');
       
       if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
@@ -383,177 +288,96 @@
 
       const firebaseProvider = new firebase.auth.GoogleAuthProvider();
 
-      firebase.auth().signInWithPopup(firebaseProvider)
+      auth.signInWithPopup(firebaseProvider)
         .then((result) => {
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          const credential = result.credential;
-          const token = credential.accessToken;
-          // The signed-in user info.
-          const user = result.user;
-          console.log('Google login successful:', user);
-          // Redirect to KYC verification
-          window.location.href = 'kyc.html';
+          window.location.href = 'index.html';
         })
         .catch((error) => {
-          // Handle Errors here.
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // The email of the user's account used.
-          const email = error.email;
-          // The firebase.auth.AuthCredential type that was used.
-          const credential = error.credential;
-          alert('Error: ' + errorMessage);
+          alert('Error: ' + error.message);
           btn.innerHTML = originalText;
           btn.disabled = false;
         });
     }
 
-    // Show signup
+    // Show signup form
     function showSignup() {
-      alert('Sign up functionality will be implemented with Firebase integration.');
+      document.getElementById('formTitle').innerText = 'Sign Up';
+      document.getElementById('formSubtitle').innerText = 'Create a new account';
+      document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+      document.getElementById('footerText').innerHTML = 'Already have an account? <a href="#" onclick="showLogin()">Sign in</a>';
+      document.getElementById('loginForm').removeEventListener('submit', handleLogin);
+      document.getElementById('loginForm').addEventListener('submit', handleSignup);
+    }
+
+    // Show login form
+    function showLogin() {
+      document.getElementById('formTitle').innerText = 'Sign In';
+      document.getElementById('formSubtitle').innerText = 'Sign in to your account';
+      document.getElementById('loginBtn').innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+      document.getElementById('footerText').innerHTML = 'Don\'t have an account? <a href="#" onclick="showSignup()">Sign up</a>';
+      document.getElementById('loginForm').removeEventListener('submit', handleSignup);
+      document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    }
+
+    // Handle login
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const loginBtn = document.getElementById('loginBtn');
+
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          window.location.href = 'index.html';
+        })
+        .catch(error => {
+          alert('Error: ' + error.message);
+          loginBtn.disabled = false;
+          loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+        });
+    }
+
+    // Handle signup
+    function handleSignup(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const loginBtn = document.getElementById('loginBtn');
+
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing Up...';
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          window.location.href = 'kyc.html';
+        })
+        .catch(error => {
+          alert('Error: ' + error.message);
+          loginBtn.disabled = false;
+          loginBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+        });
     }
 
     // Forgot password
     function forgotPassword() {
-      alert('Password reset functionality will be implemented with Firebase integration.');
-    }
-
-    // Generate OTP
-    function generateOTP() {
-      return Math.floor(100000 + Math.random() * 900000).toString();
-    }
-
-    // Show OTP form
-    function showOTPForm() {
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('otpForm').classList.add('show');
-      
-      // Generate and store OTP
-      otpCode = generateOTP();
-      console.log('Demo OTP Code:', otpCode);
-      
-      // Start timer
-      startOTPTimer();
-      
-      // Focus first OTP input
-      setTimeout(() => {
-        document.querySelector('.otp-input').focus();
-      }, 100);
-    }
-
-    // Start OTP timer
-    function startOTPTimer() {
-      let timeLeft = 60;
-      const timerElement = document.getElementById('timer');
-      const resendBtn = document.getElementById('resendBtn');
-      
-      resendBtn.disabled = true;
-      
-      otpTimer = setInterval(() => {
-        timeLeft--;
-        timerElement.textContent = `(${timeLeft}s)`;
-        
-        if (timeLeft <= 0) {
-          clearInterval(otpTimer);
-          timerElement.textContent = '';
-          resendBtn.disabled = false;
-        }
-      }, 1000);
-    }
-
-    // Resend OTP
-    function resendOTP() {
-      otpCode = generateOTP();
-      console.log('New Demo OTP Code:', otpCode);
-      
-      // Clear inputs
-      document.querySelectorAll('.otp-input').forEach(input => {
-        input.value = '';
-      });
-      
-      // Restart timer
-      clearInterval(otpTimer);
-      startOTPTimer();
-      
-      // Focus first input
-      document.querySelector('.otp-input').focus();
-      
-      alert('New OTP code sent! (Check console for demo code)');
-    }
-
-    // Handle OTP input
-    document.querySelectorAll('.otp-input').forEach((input, index) => {
-      input.addEventListener('input', function() {
-        if (this.value.length === 1) {
-          if (index < 5) {
-            document.querySelector(`[data-index="${index + 1}"]`).focus();
-          }
-        }
-      });
-      
-      input.addEventListener('keydown', function(e) {
-        if (e.key === 'Backspace' && this.value === '' && index > 0) {
-          document.querySelector(`[data-index="${index - 1}"]`).focus();
-        }
-      });
-    });
-
-    // Login form submission
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      if (!email || !password) {
-        alert('Please fill in all fields');
-        return;
+      const email = prompt("Please enter your email to reset your password:");
+      if (email) {
+        auth.sendPasswordResetEmail(email)
+          .then(() => {
+            alert('Password reset email sent. Please check your inbox.');
+          })
+          .catch((error) => {
+            alert('Error: ' + error.message);
+          });
       }
-      
-      const loginBtn = document.getElementById('loginBtn');
-      loginBtn.disabled = true;
-      loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
-      
-      // Simulate login process
-      setTimeout(() => {
-        showOTPForm();
-        loginBtn.disabled = false;
-        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-      }, 2000);
-    });
-
-    // OTP form submission
-    document.getElementById('otpForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const otpInputs = document.querySelectorAll('.otp-input');
-      const enteredOTP = Array.from(otpInputs).map(input => input.value).join('');
-      
-      if (enteredOTP.length !== 6) {
-        alert('Please enter the complete 6-digit OTP');
-        return;
-      }
-      
-      const verifyBtn = document.getElementById('verifyOtpBtn');
-      verifyBtn.disabled = true;
-      verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-      
-      // Simulate OTP verification
-      setTimeout(() => {
-        if (enteredOTP === otpCode) {
-          alert('Login successful! Redirecting to dashboard...');
-          window.location.href = 'index.html';
-        } else {
-          alert('Invalid OTP code. Please try again.');
-          verifyBtn.disabled = false;
-          verifyBtn.innerHTML = '<i class="fas fa-check"></i> Verify OTP';
-        }
-      }, 1500);
-    });
+    }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('Login page loaded');
+      document.getElementById('loginForm').addEventListener('submit', handleLogin);
     });
   </script>
 </body>
