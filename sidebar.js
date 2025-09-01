@@ -15,6 +15,12 @@ export const sidebar = `
       <li><a href="/settings.html"><i class="fas fa-cog"></i><span>Settings</span></a></li>
     </ul>
   </nav>
+
+  <div class="theme-switcher">
+    <button id="light-theme-btn" class="theme-btn"><i class="fas fa-sun"></i></button>
+    <button id="dark-theme-btn" class="theme-btn active"><i class="fas fa-moon"></i></button>
+  </div>
+
   <div class="sidebar-footer">
     <div class="user-profile">
       <img src="/images/profile-pic.png" alt="User Profile Picture">

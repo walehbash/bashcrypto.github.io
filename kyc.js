@@ -1,3 +1,4 @@
+import './theme.js';
 import { sidebar } from './sidebar.js';
 
 document.addEventListener('DOMContentLoaded', () => {
