@@ -18,11 +18,29 @@
                     <button type="submit">Login</button>
                 </form>
                 <p>Don't have an account? <a href="#" id="signup-link">Sign up</a></p>
+                <hr>
+                <button id="google-signin-btn">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" width="20" height="20">
+                    Sign in with Google
+                </button>
+            </div>
+
+            <div class="card" id="signup-card" style="display: none;">
+                <h2>Sign Up</h2>
+                <form id="signup-form">
+                    <input type="email" id="signup-email" placeholder="Email" required>
+                    <input type="password" id="signup-password" placeholder="Password" required>
+                    <input type="text" id="full-name" placeholder="Full Name" required>
+                    <input type="date" id="dob" placeholder="Date of Birth" required>
+                    <button type="submit">Sign Up</button>
+                </form>
+                <p>Already have an account? <a href="#" id="login-link">Login</a></p>
             </div>
         </div>
     </div>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
     <script src="firebase-config.js"></script>
     <script src="login.js"></script>
 </body>
