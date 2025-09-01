@@ -1,1 +1,5 @@
-env.js
+# Ignore sensitive configuration files
+gemini-config.js
+
+# Ignore Firebase emulators data
+.firebase/
