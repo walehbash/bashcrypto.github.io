@@ -1,175 +1,29 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - CryptoBroker Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css">
-
-  <style>
-    body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-    }
-    .login-card {
-        max-width: 420px;
-        width: 100%;
-        padding: 3rem;
-    }
-    .login-header {
-        text-align: center;
-        margin-bottom: 2.5rem;
-    }
-    .logo {
-        width: 70px;
-        height: 70px;
-        margin: 0 auto 1.5rem;
-        background: var(--primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        color: white;
-        font-weight: 700;
-    }
-    .login-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: white;
-    }
-    .form-group input {
-        height: 50px;
-    }
-    .btn {
-        height: 50px;
-        width: 100%;
-    }
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="notification-container"></div>
-  <div class="card login-card">
-    <div class="login-header">
-        <div class="logo">
-            <i class="fa-solid fa-rocket"></i>
+    <div class="container">
+        <div class="main-content">
+            <div class="card">
+                <h2>Login</h2>
+                <form id="login-form">
+                    <input type="email" id="email" placeholder="Email" required>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <button type="submit">Login</button>
+                </form>
+                <p>Don't have an account? <a href="#" id="signup-link">Sign up</a></p>
+            </div>
         </div>
-      <h1 class="login-title" id="formTitle">Sign In</h1>
     </div>
-
-    <!-- Login Form -->
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" placeholder="e.g. elon@tesla.com" required>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password" required>
-      </div>
-
-      <button type="submit" class="btn btn-primary" id="loginBtn">
-        <i class="fas fa-sign-in-alt"></i> <span>Sign In</span>
-      </button>
-
-      <div style="text-align: center; margin-top: 1.5rem;">
-          <a href="#" id="forgotPasswordLink" style="color: var(--secondary); font-size: 0.9rem;">Forgot password?</a>
-      </div>
-    </form>
-
-    <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
-      <p id="footerText">Don't have an account? <a href="#" id="signupLink" style="color: var(--primary); font-weight: 600;">Sign up</a></p>
-    </div>
-  </div>
-
-  <script type="module">
-    import { auth } from './firebase-config.js';
-    import { 
-        signInWithEmailAndPassword,
-        createUserWithEmailAndPassword,
-        sendPasswordResetEmail,
-        onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-    import { showNotification } from './notifications.js';
-
-    const loginForm = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const formTitle = document.getElementById('formTitle');
-    const footerText = document.getElementById('footerText');
-    const signupLink = document.getElementById('signupLink');
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    const loginBtnText = loginBtn.querySelector('span');
-
-    let isLoginMode = true;
-
-    onAuthStateChanged(auth, (user) => {
-        if(user) {
-            showNotification("Already logged in! Redirecting...", "success");
-            setTimeout(() => { window.location.href = 'index.html'; }, 2000);
-        }
-    });
-
-
-    const toggleMode = (e) => {
-        e.preventDefault();
-        isLoginMode = !isLoginMode;
-        formTitle.textContent = isLoginMode ? 'Sign In' : 'Sign Up';
-        loginBtnText.textContent = isLoginMode ? 'Sign In' : 'Sign Up';
-        footerText.innerHTML = isLoginMode 
-            ? `Don't have an account? <a href="#" id="signupLink" style="color: var(--primary); font-weight: 600;">Sign up</a>`
-            : `Already have an account? <a href="#" id="loginLink" style="color: var(--primary); font-weight: 600;">Sign in</a>`;
-        
-        // Re-attach listeners
-        document.getElementById('signupLink')?.addEventListener('click', toggleMode);
-        document.getElementById('loginLink')?.addEventListener('click', toggleMode);
-    }
-
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        loginBtn.disabled = true;
-        loginBtnText.textContent = isLoginMode ? 'Signing In...' : 'Signing Up...';
-
-        try {
-            if (isLoginMode) {
-                await signInWithEmailAndPassword(auth, email, password);
-                showNotification("Login successful! Welcome back.", "success");
-                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
-            } else {
-                await createUserWithEmailAndPassword(auth, email, password);
-                showNotification("Account created successfully! Please verify your details.", "success");
-                setTimeout(() => { window.location.href = 'kyc.html'; }, 2000);
-            }
-        } catch (error) {
-            showNotification(error.message, "error");
-            loginBtn.disabled = false;
-            loginBtnText.textContent = isLoginMode ? 'Sign In' : 'Sign Up';
-        }
-    });
-
-    forgotPasswordLink.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const email = prompt("Please enter your email for password reset:");
-        if(email) {
-            try {
-                await sendPasswordResetEmail(auth, email);
-                showNotification("Password reset email sent! Check your inbox.", "info");
-            } catch (error) {
-                showNotification(error.message, "error");
-            }
-        }
-    });
-
-    signupLink.addEventListener('click', toggleMode);
-
-  </script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="login.js"></script>
 </body>
 </html>
