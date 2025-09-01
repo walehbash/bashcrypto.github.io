@@ -4,381 +4,172 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - CryptoBroker Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="firebase-config.js"></script>
+
   <style>
-    .login-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #0f0d23 0%, #1e1b4b 100%);
-      padding: 2rem;
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
     }
-
     .login-card {
-      background: var(--dark);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 3rem;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        max-width: 420px;
+        width: 100%;
+        padding: 3rem;
     }
-
     .login-header {
-      text-align: center;
-      margin-bottom: 2rem;
+        text-align: center;
+        margin-bottom: 2.5rem;
     }
-
     .logo {
-      width: 80px;
-      height: 80px;
-      background: var(--primary);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-          justify-content: center;
-      margin: 0 auto 1rem;
-      font-size: 2rem;
-      color: white;
-      font-weight: 700;
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 1.5rem;
+        background: var(--primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+        font-weight: 700;
     }
-
     .login-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
     }
-
-    .login-subtitle {
-      color: var(--gray);
-      font-size: 0.875rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: var(--light);
-    }
-
     .form-group input {
-      width: 100%;
-      padding: 0.875rem;
-      background: var(--darker);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--light);
-      font-size: 0.875rem;
-      transition: all 0.3s ease;
+        height: 50px;
+    }
+    .btn {
+        height: 50px;
+        width: 100%;
     }
 
-    .form-group input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-
-    .input-group {
-      position: relative;
-    }
-
-    .input-group input {
-      padding-right: 3rem;
-    }
-
-    .input-icon {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--gray);
-      cursor: pointer;
-      transition: color 0.3s ease;
-    }
-
-    .input-icon:hover {
-      color: var(--primary);
-    }
-
-    .login-btn {
-      width: 100%;
-      padding: 0.875rem;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-bottom: 1rem;
-    }
-
-    .login-btn:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
-    }
-
-    .login-btn:disabled {
-      background: var(--gray);
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      margin: 1.5rem 0;
-      color: var(--gray);
-      font-size: 0.875rem;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    .divider span {
-      padding: 0 1rem;
-    }
-
-    .social-login {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .social-btn {
-      flex: 1;
-      padding: 0.75rem;
-      border: 1px solid var(--border);
-      background: var(--darker);
-      color: var(--light);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-    }
-
-    .social-btn:hover {
-      border-color: var(--primary);
-      background: rgba(99, 102, 241, 0.1);
-    }
-
-    .login-footer {
-      text-align: center;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .login-footer a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .login-footer a:hover {
-      text-decoration: underline;
-    }
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <div class="login-card">
-      <div class="login-header">
+  <div id="notification-container"></div>
+  <div class="card login-card">
+    <div class="login-header">
         <div class="logo">
-          <div class="logo-icon">
-            <svg width="80" height="80" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="#6366f1"/>
-              <path d="M16 8C11.6 8 8 11.6 8 16C8 20.4 11.6 24 16 24C20.4 24 24 20.4 24 16C24 11.6 20.4 8 16 8ZM16 22C12.7 22 10 19.3 10 16C10 12.7 12.7 10 16 10C19.3 10 22 12.7 22 16C22 19.3 19.3 22 16 22Z" fill="white"/>
-              <path d="M16 12C14.3 12 13 13.3 13 15C13 16.7 14.3 18 16 18C17.7 18 19 16.7 19 15C19 13.3 17.7 12 16 12ZM16 16C15.4 16 15 15.6 15 15C15 14.4 15.4 14 16 14C16.6 14 17 14.4 17 15C17 15.6 16.6 16 16 16Z" fill="white"/>
-              <path d="M14 13H18V17H14V13Z" fill="#6366f1"/>
-            </svg>
-          </div>
+            <i class="fa-solid fa-rocket"></i>
         </div>
-        <h1 class="login-title" id="formTitle">Sign In</h1>
-        <p class="login-subtitle" id="formSubtitle">Sign in to your account</p>
+      <h1 class="login-title" id="formTitle">Sign In</h1>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="e.g. elon@tesla.com" required>
       </div>
 
-      <!-- Login Form -->
-      <form id="loginForm" class="login-form">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <div class="input-group">
-            <input type="email" id="email" placeholder="Enter your email" required>
-            <i class="fas fa-envelope input-icon"></i>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="input-group">
-            <input type="password" id="password" placeholder="Enter your password" required>
-            <i class="fas fa-eye input-icon" onclick="togglePassword()"></i>
-          </div>
-        </div>
-
-        <button type="submit" class="login-btn" id="loginBtn">
-          <i class="fas fa-sign-in-alt"></i> Sign In
-        </button>
-
-        <div class="divider">
-          <span>or continue with</span>
-        </div>
-
-        <div class="social-login">
-          <button type="button" class="social-btn" onclick="socialLogin('google')">
-            <i class="fab fa-google"></i>
-            Google
-          </button>
-        </div>
-      </form>
-
-      <div class="login-footer">
-        <p id="footerText">Don't have an account? <a href="#" onclick="showSignup()">Sign up</a></p>
-        <p><a href="#" onclick="forgotPassword()">Forgot password?</a></p>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required>
       </div>
+
+      <button type="submit" class="btn btn-primary" id="loginBtn">
+        <i class="fas fa-sign-in-alt"></i> <span>Sign In</span>
+      </button>
+
+      <div style="text-align: center; margin-top: 1.5rem;">
+          <a href="#" id="forgotPasswordLink" style="color: var(--secondary); font-size: 0.9rem;">Forgot password?</a>
+      </div>
+    </form>
+
+    <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+      <p id="footerText">Don't have an account? <a href="#" id="signupLink" style="color: var(--primary); font-weight: 600;">Sign up</a></p>
     </div>
   </div>
 
-  <script>
-    const auth = firebase.auth();
+  <script type="module">
+    import { auth } from './firebase-config.js';
+    import { 
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        sendPasswordResetEmail,
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { showNotification } from './notifications.js';
 
-    // Toggle password visibility
-    function togglePassword() {
-      const passwordInput = document.getElementById('password');
-      const icon = document.querySelector('.fa-eye');
-      
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-      } else {
-        passwordInput.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-      }
-    }
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const formTitle = document.getElementById('formTitle');
+    const footerText = document.getElementById('footerText');
+    const signupLink = document.getElementById('signupLink');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const loginBtnText = loginBtn.querySelector('span');
 
-    // Social login
-    function socialLogin(provider) {
-      const btn = event.target.closest('.social-btn');
-      const originalText = btn.innerHTML;
+    let isLoginMode = true;
 
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
-      btn.disabled = true;
-
-      const firebaseProvider = new firebase.auth.GoogleAuthProvider();
-
-      auth.signInWithPopup(firebaseProvider)
-        .then((result) => {
-          window.location.href = 'index.html';
-        })
-        .catch((error) => {
-          alert('Error: ' + error.message);
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-        });
-    }
-
-    // Show signup form
-    function showSignup() {
-      document.getElementById('formTitle').innerText = 'Sign Up';
-      document.getElementById('formSubtitle').innerText = 'Create a new account';
-      document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
-      document.getElementById('footerText').innerHTML = 'Already have an account? <a href="#" onclick="showLogin()">Sign in</a>';
-      document.getElementById('loginForm').removeEventListener('submit', handleLogin);
-      document.getElementById('loginForm').addEventListener('submit', handleSignup);
-    }
-
-    // Show login form
-    function showLogin() {
-      document.getElementById('formTitle').innerText = 'Sign In';
-      document.getElementById('formSubtitle').innerText = 'Sign in to your account';
-      document.getElementById('loginBtn').innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-      document.getElementById('footerText').innerHTML = 'Don\'t have an account? <a href="#" onclick="showSignup()">Sign up</a>';
-      document.getElementById('loginForm').removeEventListener('submit', handleSignup);
-      document.getElementById('loginForm').addEventListener('submit', handleLogin);
-    }
-
-    // Handle login
-    function handleLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const loginBtn = document.getElementById('loginBtn');
-
-      loginBtn.disabled = true;
-      loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
-
-      auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          window.location.href = 'index.html';
-        })
-        .catch(error => {
-          alert('Error: ' + error.message);
-          loginBtn.disabled = false;
-          loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-        });
-    }
-
-    // Handle signup
-    function handleSignup(e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const loginBtn = document.getElementById('loginBtn');
-
-      loginBtn.disabled = true;
-      loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing Up...';
-
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          window.location.href = 'kyc.html';
-        })
-        .catch(error => {
-          alert('Error: ' + error.message);
-          loginBtn.disabled = false;
-          loginBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
-        });
-    }
-
-    // Forgot password
-    function forgotPassword() {
-      const email = prompt("Please enter your email to reset your password:");
-      if (email) {
-        auth.sendPasswordResetEmail(email)
-          .then(() => {
-            alert('Password reset email sent. Please check your inbox.');
-          })
-          .catch((error) => {
-            alert('Error: ' + error.message);
-          });
-      }
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    onAuthStateChanged(auth, (user) => {
+        if(user) {
+            showNotification("Already logged in! Redirecting...", "success");
+            setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+        }
     });
+
+
+    const toggleMode = (e) => {
+        e.preventDefault();
+        isLoginMode = !isLoginMode;
+        formTitle.textContent = isLoginMode ? 'Sign In' : 'Sign Up';
+        loginBtnText.textContent = isLoginMode ? 'Sign In' : 'Sign Up';
+        footerText.innerHTML = isLoginMode 
+            ? `Don't have an account? <a href="#" id="signupLink" style="color: var(--primary); font-weight: 600;">Sign up</a>`
+            : `Already have an account? <a href="#" id="loginLink" style="color: var(--primary); font-weight: 600;">Sign in</a>`;
+        
+        // Re-attach listeners
+        document.getElementById('signupLink')?.addEventListener('click', toggleMode);
+        document.getElementById('loginLink')?.addEventListener('click', toggleMode);
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        loginBtn.disabled = true;
+        loginBtnText.textContent = isLoginMode ? 'Signing In...' : 'Signing Up...';
+
+        try {
+            if (isLoginMode) {
+                await signInWithEmailAndPassword(auth, email, password);
+                showNotification("Login successful! Welcome back.", "success");
+                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+            } else {
+                await createUserWithEmailAndPassword(auth, email, password);
+                showNotification("Account created successfully! Please verify your details.", "success");
+                setTimeout(() => { window.location.href = 'kyc.html'; }, 2000);
+            }
+        } catch (error) {
+            showNotification(error.message, "error");
+            loginBtn.disabled = false;
+            loginBtnText.textContent = isLoginMode ? 'Sign In' : 'Sign Up';
+        }
+    });
+
+    forgotPasswordLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = prompt("Please enter your email for password reset:");
+        if(email) {
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showNotification("Password reset email sent! Check your inbox.", "info");
+            } catch (error) {
+                showNotification(error.message, "error");
+            }
+        }
+    });
+
+    signupLink.addEventListener('click', toggleMode);
+
   </script>
 </body>
 </html>

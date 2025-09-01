@@ -7,140 +7,82 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-  <script src="firebase-config.js"></script>
+
   <style>
-    .kyc-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #0f0d23 0%, #1e1b4b 100%);
-      padding: 2rem;
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
     }
-
     .kyc-card {
-      background: var(--dark);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 3rem;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .kyc-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .kyc-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-
-    .kyc-subtitle {
-      color: var(--gray);
-      font-size: 0.875rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: var(--light);
-    }
-
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 0.875rem;
-      background: var(--darker);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--light);
-      font-size: 0.875rem;
-      transition: all 0.3s ease;
-    }
-
-    .form-group input:focus, .form-group select:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 0.875rem;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .submit-btn:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
+        max-width: 500px;
+        width: 100%;
     }
   </style>
 </head>
 <body>
-  <div class="kyc-container">
-    <div class="kyc-card">
-      <div class="kyc-header">
-        <h1 class="kyc-title">KYC Verification</h1>
-        <p class="kyc-subtitle">Please provide your information for verification</p>
-      </div>
-      <form id="kycForm">
-        <div class="form-group">
-          <label for="fullName">Full Name</label>
-          <input type="text" id="fullName" placeholder="Enter your full name" required>
-        </div>
-        <div class="form-group">
-          <label for="dob">Date of Birth</label>
-          <input type="date" id="dob" required>
-        </div>
-        <div class="form-group">
-          <label for="documentType">Document Type</label>
-          <select id="documentType" required>
-            <option value="">Select a document type</option>
-            <option value="passport">Passport</option>
-            <option value="driver_license">Driver's License</option>
-            <option value="national_id">National ID</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="documentUpload">Upload Document</label>
-          <input type="file" id="documentUpload" required>
-        </div>
-        <button type="submit" class="submit-btn">Submit for Verification</button>
-      </form>
+  <div id="notification-container"></div>
+  <div class="card kyc-card">
+    <div class="kyc-header">
+      <h1 class="kyc-title">KYC Verification</h1>
+      <p class="kyc-subtitle">Please provide your information for verification</p>
     </div>
+    <form id="kycForm">
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" placeholder="Enter your full name" required>
+      </div>
+      <div class="form-group">
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob" required>
+      </div>
+      <div class="form-group">
+        <label for="documentType">Document Type</label>
+        <select id="documentType" required>
+          <option value="">Select a document type</option>
+          <option value="passport">Passport</option>
+          <option value="driver_license">Driver's License</option>
+          <option value="national_id">National ID</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="documentUpload">Upload Document</label>
+        <input type="file" id="documentUpload" required>
+      </div>
+      <button type="submit" class="btn btn-primary" id="submitBtn">Submit for Verification</button>
+    </form>
   </div>
-  <script>
-    document.getElementById('kycForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const submitBtn = document.querySelector('.submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
-      const user = firebase.auth().currentUser;
-      if (!user) {
-        alert('You must be logged in to submit KYC.');
-        window.location.href = 'login.html';
+  <script type="module">
+    import { auth, db, storage } from './firebase-config.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
+    import { showNotification } from './notifications.js';
+
+    const kycForm = document.getElementById('kycForm');
+    const submitBtn = document.getElementById('submitBtn');
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+      } else {
+        showNotification('You must be logged in to submit KYC.', 'error');
+        setTimeout(() => window.location.href = 'login.html', 2000);
+      }
+    });
+
+    kycForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) {
+        showNotification("No user is currently logged in.", "error");
         return;
       }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
       const fullName = document.getElementById('fullName').value;
       const dob = document.getElementById('dob').value;
@@ -148,36 +90,34 @@
       const documentFile = document.getElementById('documentUpload').files[0];
 
       if (!fullName || !dob || !documentType || !documentFile) {
-        alert('Please fill out all fields and upload a document.');
+        showNotification('Please fill out all fields and upload a document.', 'error');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Submit for Verification';
+        submitBtn.textContent = 'Submit for Verification';
         return;
       }
 
-      const storageRef = firebase.storage().ref();
-      const documentRef = storageRef.child(`kyc-documents/${user.uid}/${documentFile.name}`);
+      try {
+        const storageRef = ref(storage, `kyc-documents/${currentUser.uid}/${documentFile.name}`);
+        const snapshot = await uploadBytes(storageRef, documentFile);
+        const downloadURL = await getDownloadURL(snapshot.ref);
 
-      documentRef.put(documentFile).then(snapshot => {
-        return snapshot.ref.getDownloadURL();
-      }).then(downloadURL => {
-        const db = firebase.firestore();
-        return db.collection('kyc-submissions').doc(user.uid).set({
+        await setDoc(doc(db, 'kyc-submissions', currentUser.uid), {
           fullName: fullName,
           dob: dob,
           documentType: documentType,
           documentUrl: downloadURL,
-          status: 'pending', // pending, approved, rejected
-          submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+          status: 'pending',
+          submittedAt: serverTimestamp()
         });
-      }).then(() => {
-        alert('KYC information submitted successfully for review.');
-        window.location.href = 'index.html';
-      }).catch(error => {
-        console.error("Error submitting KYC:", error);
-        alert('Error submitting KYC: ' + error.message);
+
+        showNotification('KYC information submitted successfully! Redirecting...', 'success');
+        setTimeout(() => window.location.href = 'index.html', 2000);
+
+      } catch (error) {
+        showNotification('Error submitting KYC: ' + error.message, 'error');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Submit for Verification';
-      });
+        submitBtn.textContent = 'Submit for Verification';
+      }
     });
   </script>
 </body>
